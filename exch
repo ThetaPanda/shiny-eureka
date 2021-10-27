@@ -1,0 +1,38 @@
+[PS] C:\>Set-ServerComponentState -Identity "EX01-2016" -Component HubTransport -State Draining -Requester Maintenance
+[PS] C:\>Redirect-Message -Server "EX01-2016" -Target "EX02-2016.exoip.local"
+[PS] C:\>Suspend-ClusterNode "EX01-2016"
+[PS] C:\>Set-MailboxServer "EX01-2016" -DatabaseCopyActivationDisabledAndMoveNow $true
+[PS] C:\>Get-MailboxServer "EX01-2016" | Select DatabaseCopyAutoActivationPolicy
+[PS] C:\>Set-MailboxServer "EX01-2016" -DatabaseCopyAutoActivationPolicy Blocked
+[PS] C:\>Get-MailboxDatabaseCopyStatus -Server "EX01-2016" | Where {$_.Status -eq "Mounted"}
+[PS] C:\>Set-ServerComponentState "EX01-2016" -Component ServerWideOffline -State Inactive -Requester Maintenance
+[PS] C:\>Get-ServerComponentState "EX01-2016" | Select Component, State
+
+
+[PS] C:\>Set-ServerComponentState "EX01-2016" -Component ServerWideOffline -State Active -Requester Maintenance
+
+[PS] C:\>Resume-ClusterNode -Name "EX01-2016"
+
+[PS] C:\>Set-MailboxServer "EX01-2016" -DatabaseCopyAutoActivationPolicy Unrestricted
+
+[PS] C:\>Set-MailboxServer "EX01-2016" -DatabaseCopyActivationDisabledAndMoveNow $false
+
+[PS] C:\>Set-ServerComponentState "EX01-2016" -Component HubTransport -State Active -Requester Maintenance
+
+[PS] C:\>cd $exscripts
+ 
+[PS] C:\Program Files\Microsoft\Exchange Server\V15\scripts\>.\RedistributeActiveDatabases.ps1 -DagName "DAG1" -BalanceDbsByActivationPreference -SkipMoveSuppressionChecks
+
+[PS] C:\>Get-ClusterNode "EX01-2016"
+
+[PS] C:\>Get-ClusterNode
+
+[PS] C:\>Test-ServiceHealth "EX01-2016"
+[PS] C:\>Get-ExchangeServer | Test-ServiceHealth
+[PS] C:\>Get-ExchangeServer | Test-MAPIConnectivity
+[PS] C:\>Get-MailboxDatabaseCopyStatus -Server "EX01-2016" | Sort Name | Select Name, Status, Contentindexstate
+[PS] C:\>Get-MailboxDatabaseCopyStatus * | Sort Name | Select Name, Status, Contentindexstate
+[PS] C:\>Test-ReplicationHealth -Server "EX01-2016"
+[PS] C:\>Get-DatabaseAvailabilityGroup | Select -ExpandProperty:Servers | Test-ReplicationHealth | Sort Name
+[PS] C:\>Get-MailboxServer "EX01-2016" | Select Name, DatabaseCopyAutoActivationPolicy
+[PS] C:\>Get-MailboxServer | Select Name, DatabaseCopyAutoActivationPolicy
